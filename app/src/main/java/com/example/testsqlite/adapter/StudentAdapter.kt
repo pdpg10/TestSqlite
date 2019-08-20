@@ -29,7 +29,9 @@ class StudentAdapter(
     }
 
     fun updateData(newList: List<Student>) {
+        val oldSize = list.size
         list.clear()
+        notifyItemRangeRemoved(0, oldSize)
         list.addAll(newList)
         notifyItemRangeInserted(0, newList.size)
     }

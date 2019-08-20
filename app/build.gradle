@@ -3,7 +3,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
-androidExtensions{
+apply plugin: 'kotlin-kapt'
+androidExtensions {
     experimental = true
 }
 android {
@@ -35,4 +36,9 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+//    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.2"
+//    def room_version = "2.2.0-alpha02"/
+//    implementation "androidx.room:room-runtime:$room_version"
+//    kapt "androidx.room:room-compiler:$room_version"
+
 }
