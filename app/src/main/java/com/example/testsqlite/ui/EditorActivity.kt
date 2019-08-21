@@ -1,18 +1,22 @@
 package com.example.testsqlite.ui
 
-import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import com.example.testsqlite.R
+import com.example.testsqlite.data.DatabaseProvider
 import com.example.testsqlite.data.Student
-import com.example.testsqlite.data.StudentOpenHelper
 import com.jakewharton.rxbinding3.widget.textChanges
 import io.reactivex.Observable
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.Consumer
 import io.reactivex.functions.Function3
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_editor.*
 
 class EditorActivity : AppCompatActivity() {
@@ -21,8 +25,10 @@ class EditorActivity : AppCompatActivity() {
     private var isUpdate = false
     private var studentId: Long = -1
     private val cd = CompositeDisposable()
+    private val studentDao by lazy(LazyThreadSafetyMode.NONE) {
+        DatabaseProvider.instance(this).studentDao()
+    }
 
-    //todo convert to rx homework 4
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_editor)
@@ -33,13 +39,16 @@ class EditorActivity : AppCompatActivity() {
     private fun loadFromIntent() {
         studentId = intent.getLongExtra(KEY_STUDENT_ID, -1)
         isUpdate = studentId > 0
-        val student = StudentOpenHelper
-            .instance(this)
-            .loadStudentById(studentId)
-        student?.apply {
-            et_name.setText(name)
-            et_age.setText("$age")
-            et_course.setText("$course")
+        if (isUpdate) {
+            studentDao
+                .loadStudentById(studentId)
+                .observe(this, Observer {
+                    it?.apply {
+                        et_name.setText(name)
+                        et_age.setText("$age")
+                        et_course.setText("$course")
+                    }
+                })
         }
     }
 
@@ -82,11 +91,12 @@ class EditorActivity : AppCompatActivity() {
         val age = et_age.text.toString().toInt()
         val course = et_course.text.toString().toInt()
         val student = Student(name, age, course, studentId)
-        val id = StudentOpenHelper
-            .instance(this)
-            .updateStudent(student)
-        Log.d("Editor", "updateStudent $id")
-        setAndFinish(studentId)
+        Single.fromCallable { studentDao.updateStudent(student) }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(Consumer { finish() })
+            .let { cd.add(it) }
+
     }
 
     private fun insertNewItem() {
@@ -94,17 +104,13 @@ class EditorActivity : AppCompatActivity() {
         val age = et_age.text.toString().toInt()
         val course = et_course.text.toString().toInt()
         val student = Student(name, age, course)
-        val id = StudentOpenHelper
-            .instance(this)
-            .insertStudent(student)
+        Single.fromCallable {
+            studentDao.insert(student)
+        }.subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(Consumer { finish() })
+            .let { cd.add(it) }
 
-        setAndFinish(id)
-    }
-
-    private fun setAndFinish(id: Long) {
-        intent.putExtra(KEY_STUDENT_ID, id)
-        setResult(Activity.RESULT_OK, intent)
-        finish()
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {

@@ -3,7 +3,9 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
+
 apply plugin: 'kotlin-kapt'
+
 androidExtensions {
     experimental = true
 }
@@ -38,8 +40,13 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'com.jakewharton.rxbinding3:rxbinding:3.0.0'
 //    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.2"
-//    def room_version = "2.2.0-alpha02"/
-//    implementation "androidx.room:room-runtime:$room_version"
-//    kapt "androidx.room:room-compiler:$room_version"
+    def room_version = "2.2.0-alpha02"
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-rxjava2:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+
+    // Lifecycle components
+//    implementation "androidx.lifecycle:lifecycle-extensions:$room_version"
+//    kapt "androidx.lifecycle:lifecycle-compiler:$room_version"
 
 }
