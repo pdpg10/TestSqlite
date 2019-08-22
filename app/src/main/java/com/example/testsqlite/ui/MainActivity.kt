@@ -20,9 +20,9 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         rv.adapter = adapter
 
-        (0..10).forEach {
-            (application as App).dao.insert(Student("student-$it"))
-        }
+//        (0..10).forEach {
+//            (application as App).dao.insert(Student("student-$it"))
+//        }
 
         loadInitialItems()
     }
