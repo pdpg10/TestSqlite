@@ -16,11 +16,10 @@ class StudentAdapter(
     private val list: MutableList<Student>
 ) : RecyclerView.Adapter<StudentAdapter.VH>() {
     private val inflater by lazy(LazyThreadSafetyMode.NONE) { LayoutInflater.from(ctx) }
-    private val listener: OnItemClickListener = ctx as OnItemClickListener
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val v = inflater.inflate(R.layout.item_student, parent, false)
-        return VH(v, listener)
+        return VH(v)
     }
 
     override fun getItemCount() = list.size
@@ -60,15 +59,9 @@ class StudentAdapter(
     }
 
     class VH(
-        override val containerView: View,
-        listener: OnItemClickListener
-    ) : RecyclerView.ViewHolder(containerView),
+        override val containerView: View) : RecyclerView.ViewHolder(containerView),
         LayoutContainer {
         private var lastStudent: Student? = null
-
-        init {
-            containerView.setOnClickListener { listener.onItemClick(lastStudent!!) }
-        }
 
         fun onBind(it: Student) {
             lastStudent = it
